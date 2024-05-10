@@ -16,7 +16,7 @@ pkg update
 pkg install -y termux-x11-nightly xdotool xorg-xsetroot scrcpy tsu nmap net-tools
 
 # Download the main script from xyz.com/main.txt
-curl -o ~/bin/termux-scrcpy http://techflyervp.000webhostapp.com/main.txt
+curl -o ~/bin/termux-scrcpy https://raw.githubusercontent.com/techflyers/termux-scrcpy/main/termux-scrcpy
 
 # Make the main script executable
 chmod +x ~/bin/termux-scrcpy
