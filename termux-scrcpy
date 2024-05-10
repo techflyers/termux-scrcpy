@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# Termux Setup
+echo ""
+echo "# Prerequisites"
+echo -e "1. Install Termux-X11(*): Download and install the Termux-X11 apk. \nFrom: https://tinyurl.com/termux-x11v1-app"
+echo "2. Check your device dimensions (Optional): Visit whatismyscreenresolution.org on your device's browser and note down \"Device Resolution\" First part is width, second height."
+echo ""
+
+read -p "Have you completed the prerequisites? (y/n) " confirmation
+
+if [ "$confirmation" != "y" ]; then
+    echo "Please complete the prerequisites before continuing."
+    exit 1
+fi
+
+# Do nmap scan for freeciv
+# Get broadcast
+ipaddr=$(ifconfig | grep broadcast | awk -F 'broadcast' '{print $2}' | tr -d ' ' 2>/dev/null)
+# max_ip=$(echo ipaddr | sed 's/.*\.//' 2>/dev/null)
+min_ip=${ipaddr%.*}
+# Nmap scan
+# port=$(nmap -Pn $min_ip | grep freeciv | awk -F '/' '{print $1}' 2>/dev/null)
+
+
+# Check for device dimensions from wm size command
+wm_size=$(sudo wm size 2>/dev/null)
+if [[ $wm_size =~ ^Physical\ size:\ ([0-9]+)x([0-9]+)$ ]]; then
+    height=${BASH_REMATCH[2]}
+    width=${BASH_REMATCH[1]}
+else
+    # Default values
+    height=1280
+    width=720
+fi
+
+ip=$min_ip
+#port=$(nmap -Pn $min_ip | grep freeciv | awk -F '/' '{print $1}' 2>/dev/null)
+
+# Prompt the user for input (if desired)
+read -p "Enter height (default: $height): " input_height
+read -p "Enter width (default: $width): " input_width
+read -p "Last 3 digits of IP (default: $ip.X): " input_ip
+
+if [ "$input_ip" == "n" ]; then
+    read -p "Enter custom IP: " input_ip
+else
+    input_ip=$min_ip.$input_ip
+fi
+
+port=$(nmap -Pn $input_ip | grep freeciv | awk -F '/' '{print $1}' 2>/dev/null)
+
+read -p "Enter port (default: $port): " input_port
+
+# Use user input if provided, otherwise use defaults
+height=${input_height:-$height}
+width=${input_width:-$width}
+ip=${input_ip:-$ip}
+port=${input_port:-$port}
+
+echo $height $width
+
+# Run the commands
+#pkg update && pkg install termux-x11 xdotool xorg-xsetroot scrcpy
+
+termux-x11 :0 -legacy-drawing > /dev/null 2>&1 &
+
+sleep 1
+
+export DISPLAY=:0
+
+adb connect ${ip}:${port}
+
+sleep 1
+
+# Check if connected properly
+connected_devices=$(adb devices | grep -v "List of devices attached" | grep -v "^$")
+if [ -z "$connected_devices" ]; then
+    echo "Error: Failed to connect to the device"
+    exit 1
+else
+    # Check if the connected device is a "device"
+    if ! echo "$connected_devices" | grep -q "device"; then
+        echo "Error: Connected device is not a 'device'"
+        exit 1
+    fi
+fi
+
+# Get additional options from command line arguments
+additional_options="$@"
+
+echo $@
+
+# Start scrcpy with additional options
+scrcpy $additional_options > /dev/null 2>&1 &
+
+sleep 2
+
+# Set the window size and position
+scrcpy_window=$(xdotool search scrcpy 2>/dev/null)
+echo $scrcpy_window
+xdotool windowsize $scrcpy_window $width $height
+xdotool windowmove $scrcpy_window 0 0
+xsetroot -cursor_name dot
