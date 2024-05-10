@@ -5,17 +5,18 @@ This script will set up a scrcpy session on your Termux device, allowing you to 
 
 # Prerequisites
 
+*Note: All links provided here are not sponsored.*
+
 1. Check your device dimensions:
 
- Visit whatismyscreenresolution.org
-
- on your device's browser and note down "Device Resolution" First part is width, second height. (Optional)
+ Install [Screen Info](https://play.google.com/store/apps/details?id=com.sturnus.screeninfo&hl=en_US)
+ app on your device. And note down the resolution.
 
 2. Install Termux-X11: (*)
 
 Download and install the Termux-X11 apk.
 
-https://tinyurl.com/termux-x11v1-app
+[Termux repo](https://github.com/termux/termux-x11/releases) (or) [Direct download](https://github.com/termux/termux-x11/releases/download/nightly/app-universal-debug.apk)
 
 3. Enable USB Debugging: 
 
@@ -23,18 +24,18 @@ On your Android device, go to Settings > Developer Options > USB Debugging and e
 
 ## Usage
 
-1. **Clone the repository**: Clone this repository to your Termux environment or copy the `setup_scrcpy.sh` script to your Termux device.
+1. **Clone the repository**: Clone this repository to your Termux environment or copy the `install.sh` script to your Termux device.
 
 2. **Make the script executable**: Run the following command in Termux:
 
    ```bash
-   chmod +x setup_scrcpy.sh
+   chmod +x install.sh
    ```
 
 3. **Run the script**: Execute the script with the following command:
 
    ```bash
-   ./setup_scrcpy.sh
+   ./install.sh
    ```
 
    The script will prompt you to enter the device dimensions (height and width) and the IP address and port for ADB connection. If you don't provide any input, it will use the default values (1280x720, 127.0.0.1:5555).
